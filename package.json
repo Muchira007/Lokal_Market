@@ -1,0 +1,17 @@
+{
+  "name": "lokal_market",
+  "version": "1.0.0",
+  "description": "this is android delivery app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "muchira007",
+  "license": "ISC",
+  "dependencies": {
+    "nativewind": "^2.0.11"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.2"
+  }
+}
