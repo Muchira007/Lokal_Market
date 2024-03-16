@@ -1,7 +1,8 @@
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native'
 import React from 'react'
-import { themeColors } from '../themes'
+//import { themeColors } from '../themes'
 import SpecialCard from './SpecialCard'
+import { featured, specials } from '../constants';
 
 export default function FeaturedRow({ title, description }) { // Destructure props properly
     return (
@@ -21,16 +22,13 @@ export default function FeaturedRow({ title, description }) { // Destructure pro
       contentContainerStyle={{paddingLeft:16, paddingRight:16, paddingHorizontal: 15}}
       className="overflow-visible py-5"
       >
-        {/* {
-            specials.map((special, index)=>{
-                return(
-                    <SpecialCard
-                        item= {special}
-                        key={index}
-                    />
-                )
-            })
-        } */}
+{/* Map over each special item and pass it to SpecialCard */}
+{featured.specials.map((special, index) => (
+          <SpecialCard
+            specialItem={special} // Pass each individual special item
+            key={index}
+          />
+        ))}
       </ScrollView>
     </View>
   );

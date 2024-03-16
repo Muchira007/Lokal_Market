@@ -16,7 +16,8 @@ export default function Categories() {
           paddingHorizontal: 15   
         }}
       >
-        {categories.map((category, index) => {
+        {categories.map((category, index) => 
+        {
             let isActive = category.id===activeCategory;
             let btnClass = isActive? ' shadow bg-gray-600' : ' bg-gray-200';
             let textClass = isActive? ' font-semibold text-gray-800' : ' text-gray-500';
