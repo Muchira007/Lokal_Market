@@ -30,14 +30,14 @@ export default function HomeScreen() {
     {/*main*/}
     <ScrollView showsVerticalScrollIndicator={false}
     contentContainerStyle={{
-      paddingBottom: 20
+      paddingBottom: 100
     }}
     >
       <Categories/>
       {/* featured */}
       <View className="mt-5">
         {
-          [featured, featured, featured].map((item,index)=>{
+          [featured].map((item,index)=>{
             return (
               <FeaturedRow
                 key={index}
