@@ -30,7 +30,7 @@ export default function SpecialCard({ specialItem }) {
             <Text style={{ fontSize: 12 }}>
               <Text style={{ color: 'green' }}>{specialItem.stars}</Text> 
               {' '}
-              <Text>({specialItem.reviews} review)</Text>
+              <Text>({specialItem.reviews} reviews)</Text>
             </Text>
           </View>
           <View className="flex-row items-center space-x-l">
