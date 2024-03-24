@@ -1,30 +1,63 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Image, TouchableOpacity, Text, StatusBar } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import * as Icon from "react-native-feather";
 import { themeColors } from '../themes';
-import { categories } from '../constants';
 import ItemRow from '../components/ItemRow';
 import CartIcon from '../components/CartIcon';
+import { selectCatalogItems, setCatalogItems } from '../slices/catalogSliceTemp';
+import { categories } from '../constants'; // Import categories
 
 export default function Catalog() {
     const route = useRoute();
     const navigation = useNavigation();
+    const dispatch = useDispatch();
+    const catalogItems = useSelector(selectCatalogItems);
+
     const { categoryId, specials } = route.params || {};
+    const [error, setError] = useState(false);
+
+    useEffect(() => {
+        // Set the catalog items when the component mounts
+        dispatch(setCatalogItems(categories));
+    }, [dispatch]);
+
     let category;
 
     // Determine which data to use based on the scenario
     if (categoryId) {
-        category = categories.find(cat => cat.id === categoryId);
+        category = catalogItems.find(cat => cat.id === categoryId);
     } else if (specials) {
         // Handle logic related to specials data
     }
 
-    if (!category) {
-        // If category is not found, you can handle this case as needed
-        // For example, you could display a message or navigate back
+    useEffect(() => {
+        if (!category) {
+            setError(true);
+        }
+    }, [category]);
+
+    if (error) {
+        // If category is not found, display an error message or navigate back
         console.warn(`Category with ID ${categoryId} not found`);
-        return null; // Or return a fallback UI component
+        return (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ fontSize: 18 }}>Category not found</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
+                    <Text style={{ color: 'blue' }}>Go back</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
+
+    if (!category) {
+        // If category is still loading, you can display a loading indicator here
+        return (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                <Text>Loading...</Text>
+            </View>
+        );
     }
 
     return (
@@ -60,6 +93,14 @@ export default function Catalog() {
         </View>
     );
 }
+
+
+
+
+
+
+
+
 
 
 

@@ -4,9 +4,18 @@ import MapView, { Marker } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
 import { themeColors } from '../themes';
 import * as Icon from "react-native-feather";
+import { useDispatch, useSelector } from 'react-redux';
+import { emptyCart } from '../slices/cartSlice';
 
 export default function Delivery() {
+  const subcategories = useSelector(state=> state.catalog.subcategories)
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const cancelOrder = ()=> {
+    navigation.navigate('Home')
+    dispatch(emptyCart());
+  }
+
   
   // Define initial region
   const initialRegion = {
@@ -68,7 +77,7 @@ export default function Delivery() {
           <TouchableOpacity className="bg-white pd-2 rounded-full">
             <Icon.Phone fill={themeColors.bgColor(1)} stroke={themeColors.bgColor(1)} strokeWidth={1}/>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=> navigation.navigate('Home')} className="bg-white pd-2 rounded-full">
+          <TouchableOpacity onPress={cancelOrder} className="bg-white pd-2 rounded-full">
             <Icon.X  stroke={'red'} strokeWidth={4}/>
           </TouchableOpacity>
         </View>

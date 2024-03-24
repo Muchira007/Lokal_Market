@@ -1,70 +1,69 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Image, TouchableOpacity, TextInput, ScrollView, StatusBar } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import * as Icon from "react-native-feather";
 import { themeColors } from '../themes';
 import CartIcon from '../components/CartIcon';
-import { categories } from '../constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { setMarketItems } from '../slices/marketSlice';
+import { addToCart, removeToCart, selectCartItemsById } from '../slices/cartSlice';
 
 export default function Market() {
   const route = useRoute();
   const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-  // Extract specialItem and categoryId from route params
   const { specialItem, categoryId } = route.params ?? {};
+  const totalItems = useSelector(state => selectCartItemsById(state, specialItem.id));
+  const [quantity, setQuantity] = useState(0); // Change the initial value to 0
 
-  // State for quantity input
-  const [quantity, setQuantity] = useState(1);
-
-  // Function to handle quantity change
   const handleQuantityChange = (text) => {
-    // Validate input to ensure it's a positive integer
     if (/^\d*$/.test(text)) {
       setQuantity(parseInt(text));
     }
   };
 
-  // Function to add item to cart and navigate to the cart screen
-  const addToCart = () => {
-    // Ensure specialItem is defined and has an id property
-    if (!specialItem || !specialItem.id) {
-      console.error('Special item is undefined or does not have an id property.');
-      return;
+  useEffect(() =>{
+    if(specialItem && specialItem.id){
+      dispatch(setMarketItems(specialItem));
     }
+  },[specialItem, dispatch]);
 
-    // Add the specialItem to the cart with the specified quantity
-    const updatedCartItems = [
-      ...cartItems.filter(item => item.id !== specialItem.id), // Remove existing item with the same id
-      { ...specialItem, quantity }
-    ];
-    setCartItems(updatedCartItems);
-    
-    // Navigate to the cart screen and pass the updated cart items
-    navigation.navigate('CartScreen', { cartItems: updatedCartItems });
+  const handleAddToCart = () => {
+    if (specialItem && specialItem.id) {
+      dispatch(addToCart({ ...specialItem, quantity }));
+    }
   };
 
-  // Function to increment quantity
-  const incrementQuantity = () => {
-    setQuantity(prevQuantity => prevQuantity + 1);
+  const handleRemoveFromCart = () => {
+    if (specialItem && specialItem.id) {
+      dispatch(removeToCart({ id: specialItem.id }));
+    }
   };
 
-  // Function to decrement quantity
-  const decrementQuantity = () => {
+  const handleDecrease = () => {
     if (quantity > 1) {
-      setQuantity(prevQuantity => prevQuantity - 1);
+      setQuantity(prevQuantity => {
+        const newQuantity = prevQuantity - 1;
+        handleRemoveFromCart(); // Call remove from cart when decreasing quantity
+        return newQuantity;
+      });
     }
   };
+  
 
-  // Function to calculate total price
-  const totalPrice = specialItem ? specialItem.price * quantity : 0;
+  const handleIncrease = () => {
+    setQuantity(prevQuantity => prevQuantity + 1);
+    handleAddToCart();
+  };
 
+  const totalPrice = specialItem ? specialItem.price * quantity : 0
   return (
     <View style={{ flex: 1 }}>
       <CartIcon categoryId={categoryId} specialItem={specialItem} />
       <StatusBar style="light"/>
       <ScrollView>
         <View style={{ position: 'relative', height: 300 }}>
-          {/* Display image if specialItem.image is defined */}
           {specialItem && specialItem.image && (
             <Image style={{ width: '100%', height: '100%' }} source={specialItem.image} />
           )}
@@ -105,7 +104,6 @@ export default function Market() {
             </View>
           )}
         </View>
-        {/* Quantity input */}
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: 'white', paddingHorizontal: 20, paddingVertical: 10 }}>
           <Text style={{ fontSize: 16 }}>Quantity:</Text>
           <TextInput
@@ -114,22 +112,48 @@ export default function Market() {
             value={quantity.toString()}
             onChangeText={handleQuantityChange}
           />
+          <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+            <TouchableOpacity
+                onPress={handleIncrease}
+                style={{ backgroundColor: themeColors.bgColor(1), borderRadius: 20, padding: 8, marginLeft: 10 }}
+              >
+                <Icon.PlusSquare strokeWidth={2} height={20} width={20} stroke={"white"} />
+              </TouchableOpacity>
+              <TouchableOpacity
+  onPress={() => {
+    console.log("Before decrement: Quantity:", quantity);
+    handleDecrease();
+    console.log("After decrement: Quantity:", quantity);
+  }}
+  disabled={!totalItems.length}
+  style={{
+    backgroundColor: themeColors.bgColor(1),
+    borderRadius: 20,
+    padding: 8,
+    marginLeft: 10,
+  }}
+>
+  <Icon.MinusSquare strokeWidth={2} height={20} width={20} stroke={"white"} />
+</TouchableOpacity>
+
+              
+          </View>
         </View>
-        {/* Total price */}
         <View style={{ backgroundColor: 'white', paddingHorizontal: 20, paddingVertical: 10, borderTopWidth: 1, borderTopColor: 'gray', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <Text style={{ fontSize: 16 }}>Total Price: {totalPrice} ksh</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <TouchableOpacity
-              onPress={decrementQuantity}
-              style={{ backgroundColor: themeColors.bgColor(1), borderRadius: 20, padding: 8 }}
-            >
-              <Icon.Minus strokeWidth={2} height={20} width={20} stroke={"white"} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={incrementQuantity}
+              onPress={handleAddToCart}
               style={{ backgroundColor: themeColors.bgColor(1), borderRadius: 20, padding: 8, marginLeft: 10 }}
             >
               <Icon.Plus strokeWidth={2} height={20} width={20} stroke={"white"} />
+            </TouchableOpacity>
+            <Text style={{marginLeft: 10}}>Add To Cart: {totalItems.length}</Text>
+            <TouchableOpacity
+              onPress={handleRemoveFromCart}
+              style={{ backgroundColor: themeColors.bgColor(1), borderRadius: 20, padding: 8, marginLeft: 10 }}
+            >
+              <Icon.Minus strokeWidth={2} height={20} width={20} stroke={"white"} />
             </TouchableOpacity>
           </View>
         </View>
@@ -137,8 +161,4 @@ export default function Market() {
     </View>
   );
 }
-
-    
-
-
 
